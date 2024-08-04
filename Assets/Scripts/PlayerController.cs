@@ -18,6 +18,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+    public Animator animator;
+    public Weapon weapon;
 
     void Update()
     {
@@ -49,6 +51,14 @@ public class PlayerMovement : MonoBehaviour
         if (IsGrounded())
         {
             hasDoubleJump = false;
+            if (animator.GetBool("isJumping"))
+            {
+                animator.SetBool("isJumping", false);
+            }
+        }
+        else if (!animator.GetBool("isJumping"))
+        {
+            animator.SetBool("isJumping", true);
         }
 
         Flip();
@@ -60,12 +70,35 @@ public class PlayerMovement : MonoBehaviour
             Physics2D.gravity = new Vector2(Physics2D.gravity.x, Physics2D.gravity.y * -1);
             StartCoroutine(FlipGravity());
             isFlippingGravity = true;
+            transform.Rotate(0f, 0f, 180f);
+        }
+
+        if (weapon.isShooting)
+        {
+            animator.SetBool("isShooting", true);
+        }
+        else
+        {
+            // CHECK WEAPON.CS to see the animation gap functionality
+            animator.SetBool("isShooting", false);
         }
     }
 
     private void FixedUpdate()
     {
+        if (gameHasEnded)
+        {
+            return;
+        }
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        if (horizontal != 0f)
+        {
+            animator.SetBool("isMoving", true);
+        }
+        else
+        {
+            animator.SetBool("isMoving", false);
+        }
     }
 
     private bool IsGrounded()
@@ -78,9 +111,8 @@ public class PlayerMovement : MonoBehaviour
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
             isFacingRight = !isFacingRight;
-            Vector3 localScale = transform.localScale;
-            localScale.x *= -1f;
-            transform.localScale = localScale;
+
+            transform.Rotate(0f, 180f, 0f);
         }
     }
 
@@ -97,6 +129,7 @@ public class PlayerMovement : MonoBehaviour
 
         // reset gravity
         Physics2D.gravity = new Vector2(Physics2D.gravity.x, Physics2D.gravity.y * -1);
+        transform.Rotate(0f, 0f, 180f);
         StartCoroutine(FlipGravityCD());
 
     }
