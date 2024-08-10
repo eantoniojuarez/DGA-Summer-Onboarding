@@ -15,6 +15,7 @@ public class AIHoriBrain : MonoBehaviour
     public Transform player;
     public bool isHit = false;
     public float health = 10f;
+    public AudioManager audioManager;
     public enum State
     {
         PATROL,
@@ -68,12 +69,23 @@ public class AIHoriBrain : MonoBehaviour
             health -= 10f;
             if (health <= 0)
             {
+                audioManager.PlayKillSound();
                 Destroy(gameObject);
             }
             // turn this object to red for a while
             GetComponent<SpriteRenderer>().color = Color.red;
             StartCoroutine(ResetColor());
             isHit = false;
+        }
+    }
+
+    public void getHit(bool isMelee)
+    {
+        isHit = true;
+        if (isMelee)
+        {
+            // knock back by a small force
+            // GetComponent<Rigidbody2D>().velocity = new Vector2(-15f, 15f);
         }
     }
 

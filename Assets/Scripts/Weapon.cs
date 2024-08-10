@@ -73,12 +73,12 @@ public class Weapon : MonoBehaviour
         meleeRange.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 0.5f);
         // turn it back to white after 0.5 seconds
         StartCoroutine(ResetMeleeColor());
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(meleeRange.transform.position, 0.5f);
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(meleeRange.transform.position, 2f);
         foreach (Collider2D enemy in hitEnemies)
         {
             if (enemy.CompareTag("Enemy"))
             {
-                enemy.GetComponent<AIHoriBrain>().isHit = true;
+                enemy.GetComponent<AIHoriBrain>().getHit(true);
             }
         }
     }

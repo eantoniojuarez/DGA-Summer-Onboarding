@@ -25,7 +25,7 @@ public class Bullet : MonoBehaviour
     {
         if (hitInfo.tag == "Enemy")
         {
-            hitInfo.GetComponent<AIHoriBrain>().isHit = true;
+            hitInfo.GetComponent<AIHoriBrain>().getHit(false);
             Destroy(gameObject);
             Instantiate(ImpactEffect, transform.position, transform.rotation);
             return;
