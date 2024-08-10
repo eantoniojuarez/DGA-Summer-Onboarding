@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using UnityEngine;
 
 public class AIHoriBrain : MonoBehaviour
@@ -12,6 +13,8 @@ public class AIHoriBrain : MonoBehaviour
     public float stopDistance = 1f;
     public bool stopOnPlayer = false;
     public Transform player;
+    public bool isHit = false;
+    public float health = 10f;
     public enum State
     {
         PATROL,
@@ -59,6 +62,25 @@ public class AIHoriBrain : MonoBehaviour
 
             state = State.PATROL;
         }
+
+        if (isHit)
+        {
+            health -= 10f;
+            if (health <= 0)
+            {
+                Destroy(gameObject);
+            }
+            // turn this object to red for a while
+            GetComponent<SpriteRenderer>().color = Color.red;
+            StartCoroutine(ResetColor());
+            isHit = false;
+        }
+    }
+
+    IEnumerator ResetColor()
+    {
+        yield return new WaitForSeconds(0.5f);
+        GetComponent<SpriteRenderer>().color = Color.white;
     }
 
     void Patrol()
@@ -66,7 +88,7 @@ public class AIHoriBrain : MonoBehaviour
         if (isGoingToA)
         {
             transform.position = Vector2.MoveTowards(transform.position, destinationA.transform.position, speed * Time.deltaTime);
-            if (Vector2.Distance(transform.position, destinationA.transform.position) < 0.1f)
+            if (Vector2.Distance(transform.position, destinationA.transform.position) < 0.5f)
             {
                 isGoingToA = false;
             }
@@ -74,7 +96,7 @@ public class AIHoriBrain : MonoBehaviour
         else
         {
             transform.position = Vector2.MoveTowards(transform.position, destinationB.transform.position, speed * Time.deltaTime);
-            if (Vector2.Distance(transform.position, destinationB.transform.position) < 0.1f)
+            if (Vector2.Distance(transform.position, destinationB.transform.position) < 0.5f)
             {
                 isGoingToA = true;
             }
@@ -85,6 +107,15 @@ public class AIHoriBrain : MonoBehaviour
     {
 
         transform.position = Vector2.MoveTowards(transform.position, new Vector2(player.position.x, transform.position.y), speed * Time.deltaTime);
-        Debug.Log("new position is " + new Vector2(player.position.x, transform.position.y));
+        // Debug.Log("new position is " + new Vector2(player.position.x, transform.position.y));
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            Debug.Log("Player is hit");
+            other.gameObject.GetComponent<PlayerController>().isHit = true;
+        }
     }
 }

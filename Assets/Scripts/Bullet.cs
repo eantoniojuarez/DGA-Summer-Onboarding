@@ -23,10 +23,13 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D hitInfo)
     {
-        // if (hitInfo.tag == "Enemy")
-        // {
-        //     Destroy(gameObject);
-        // }
+        if (hitInfo.tag == "Enemy")
+        {
+            hitInfo.GetComponent<AIHoriBrain>().isHit = true;
+            Destroy(gameObject);
+            Instantiate(ImpactEffect, transform.position, transform.rotation);
+            return;
+        }
 
         // compare layer with whatIsSolid
         if ((whatIsSolid.value & 1 << hitInfo.gameObject.layer) == 1 << hitInfo.gameObject.layer)

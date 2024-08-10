@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     private float horizontal;
     public float speed = 8f;
     public float jumpingPower = 16f;
     private bool isFacingRight = true;
     public bool hasDoubleJump = false;
+    private bool inAir = false;
     public bool isFlippingGravity = false;
     public bool gameHasEnded = false;
     public TextMeshProUGUI skillLastTimeText;
@@ -20,6 +21,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     public Animator animator;
     public Weapon weapon;
+    public bool isHit = false;
+    public bool isInvinsible = false;
+    public float health = 100f;
+
+    public AudioManager audioManager;
 
     void Update()
     {
@@ -34,6 +40,8 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
+
+            audioManager.PlayJumpSound();
         }
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
@@ -46,6 +54,23 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
             hasDoubleJump = true;
+
+            audioManager.PlayJumpSound();
+        }
+
+        if (!IsGrounded())
+        {
+
+            inAir = true;
+        }
+        else
+        {
+            if (inAir)
+            {
+                Debug.Log("in air, landing play");
+                audioManager.PlayLandingSound();
+            }
+            inAir = false;
         }
 
         if (IsGrounded())
@@ -73,8 +98,20 @@ public class PlayerMovement : MonoBehaviour
             transform.Rotate(0f, 0f, 180f);
         }
 
+        // if press mouse right, melee attack
+        if (weapon.isMeleeing)
+        {
+            // animator.SetTrigger("isMelee");
+            animator.Play("PlayerMelee");
+        }
+        else
+        {
+            // animator.ResetTrigger("isMelee");
+        }
+
         if (weapon.isShooting)
         {
+            Debug.Log("isShooting");
             animator.SetBool("isShooting", true);
         }
         else
@@ -82,6 +119,28 @@ public class PlayerMovement : MonoBehaviour
             // CHECK WEAPON.CS to see the animation gap functionality
             animator.SetBool("isShooting", false);
         }
+
+        if (isHit && !isInvinsible)
+        {
+            Debug.Log("player is hit!!!");
+            // knock back by a small force 
+            rb.velocity = new Vector2(-5f, 5f);
+            // flash red
+            GetComponent<SpriteRenderer>().color = Color.red;
+            health -= 10f;
+
+            // enter invincible state for 0.5 seconds
+            StartCoroutine(ResetColor());
+        }
+    }
+
+    IEnumerator ResetColor()
+    {
+        isInvinsible = true;
+        yield return new WaitForSeconds(0.5f);
+        GetComponent<SpriteRenderer>().color = Color.white;
+        isHit = false;
+        isInvinsible = false;
     }
 
     private void FixedUpdate()
@@ -148,5 +207,10 @@ public class PlayerMovement : MonoBehaviour
         // reset CD
         isFlippingGravity = false;
         skillCDText.text = "Skill CD: Ready";
+    }
+
+    public void playShootSound()
+    {
+        audioManager.PlayShootSound();
     }
 }

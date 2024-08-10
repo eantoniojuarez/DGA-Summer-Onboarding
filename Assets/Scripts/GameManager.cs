@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public GameObject goal;
     public TextMeshProUGUI winText;
     public GameObject player;
+    public GameObject gameSpace;
 
     // struct for game state
     public struct GameState
@@ -47,9 +48,23 @@ public class GameManager : MonoBehaviour
             winText.gameObject.SetActive(true);
         }
 
+        if (gameSpace.GetComponent<KillThingsOut>().shouldRestart)
+        {
+            gameState.isGameOver = true;
+            winText.text = "You fell out of the game space!";
+            winText.gameObject.SetActive(true);
+        }
+
+        if (player.GetComponent<PlayerController>().health <= 0)
+        {
+            gameState.isGameOver = true;
+            winText.text = "You died!";
+            winText.gameObject.SetActive(true);
+        }
+
         if (gameState.isGameOver)
         {
-            player.GetComponent<PlayerMovement>().gameHasEnded = true;
+            player.GetComponent<PlayerController>().gameHasEnded = true;
             // reset player speed
             player.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             // after 3 seconds, restart the game

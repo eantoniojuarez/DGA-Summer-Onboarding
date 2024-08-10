@@ -13,6 +13,9 @@ public class Weapon : MonoBehaviour
     // that the animation is not shown
     public float shootingAnimationGap = 1f;
 
+    public GameObject meleeRange;
+    public bool isMeleeing = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -22,6 +25,14 @@ public class Weapon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButtonDown(1))
+        {
+            isMeleeing = true;
+        }
+        if (!Input.GetMouseButton(1))
+        {
+            isMeleeing = false;
+        }
         if (Input.GetButtonDown("Fire1"))
         {
             Shoot();
@@ -37,11 +48,10 @@ public class Weapon : MonoBehaviour
 
     void Shoot()
     {
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.transform.position, firePoint.transform.rotation);
+
         isShooting = true;
         StartCoroutine(ShootingAnimation());
         // destroy bullet after 2 seconds
-        Destroy(bullet, 2f);
     }
 
     IEnumerator ShootingAnimation()
@@ -49,5 +59,34 @@ public class Weapon : MonoBehaviour
         isCountingDown = true;
         yield return new WaitForSeconds(shootingAnimationGap);
         isCountingDown = false;
+    }
+
+    void InstantiateBullet()
+    {
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.transform.position, firePoint.transform.rotation);
+        Destroy(bullet, 2f);
+    }
+
+    public void MeleeAttack()
+    {
+        // turn meleerange into red color by setting its opacity
+        meleeRange.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 0.5f);
+        // turn it back to white after 0.5 seconds
+        StartCoroutine(ResetMeleeColor());
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(meleeRange.transform.position, 0.5f);
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            if (enemy.CompareTag("Enemy"))
+            {
+                enemy.GetComponent<AIHoriBrain>().isHit = true;
+            }
+        }
+    }
+
+    IEnumerator ResetMeleeColor()
+    {
+        yield return new WaitForSeconds(0.5f);
+        // set it back to transparent
+        meleeRange.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
     }
 }
