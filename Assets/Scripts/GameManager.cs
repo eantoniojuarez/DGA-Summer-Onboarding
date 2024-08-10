@@ -57,6 +57,7 @@ public class GameManager : MonoBehaviour
 
         if (player.GetComponent<PlayerController>().health <= 0)
         {
+            Debug.Log("[Game Manager] Player health is 0");
             gameState.isGameOver = true;
             winText.text = "You died!";
             winText.gameObject.SetActive(true);

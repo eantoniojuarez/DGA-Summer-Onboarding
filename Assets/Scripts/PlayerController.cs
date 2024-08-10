@@ -124,11 +124,10 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("player is hit!!!");
             // knock back by a small force 
-            rb.velocity = new Vector2(-5f, 5f);
+            rb.velocity = new Vector2(-15f, 15f);
             // flash red
             GetComponent<SpriteRenderer>().color = Color.red;
             health -= 10f;
-
             // enter invincible state for 0.5 seconds
             StartCoroutine(ResetColor());
         }
@@ -137,7 +136,8 @@ public class PlayerController : MonoBehaviour
     IEnumerator ResetColor()
     {
         isInvinsible = true;
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1.5f);
+        Debug.Log("No longer invincible");
         GetComponent<SpriteRenderer>().color = Color.white;
         isHit = false;
         isInvinsible = false;
@@ -177,6 +177,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator FlipGravity()
     {
+        audioManager.PlayFlipSound();
         // flip gravity for 3 seconds; update skillLastTimeText to be the remaining time
         float timeLeft = 3;
         while (timeLeft > 0)
@@ -189,6 +190,7 @@ public class PlayerController : MonoBehaviour
         // reset gravity
         Physics2D.gravity = new Vector2(Physics2D.gravity.x, Physics2D.gravity.y * -1);
         transform.Rotate(0f, 0f, 180f);
+        audioManager.PlayFlipSound();
         StartCoroutine(FlipGravityCD());
 
     }

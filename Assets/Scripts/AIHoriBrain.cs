@@ -109,13 +109,4 @@ public class AIHoriBrain : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position, new Vector2(player.position.x, transform.position.y), speed * Time.deltaTime);
         // Debug.Log("new position is " + new Vector2(player.position.x, transform.position.y));
     }
-
-    private void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            Debug.Log("Player is hit");
-            other.gameObject.GetComponent<PlayerController>().isHit = true;
-        }
-    }
 }
